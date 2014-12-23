@@ -1,0 +1,78 @@
+飞哥，我整理了一下思路，你帮着看下，看有没有不合适的？
+
+1、日志需要比较及时地推送，多长时间（1分钟，5分钟、10分钟?）推送合适？或者使用消息？
+2、日志信息根据如下接口，add或者update信息，这是我整理的感觉与业务比较符合的接口，飞哥看下是否需要添加或者删除
+3、在线标识，也就是当前在线用户人标识，暂定为最后更新时间(online_time，这个字段会及时更新到最新)，如果查询当前在线用户，则比较 online_time与当前时间的间隔，在合适范围内就算是在线，这个时间范围该定到多少（1分钟，5分钟、10分钟?）
+或者飞哥有更好的定义在线用户的标识。我觉的简单使用userlogin //userlogout是不靠谱的，因为可能用户只登录一次，甚至根本不注销。
+4、注册用户，添加一个注册时间
+5、用户的关注、fans相关接口，可以比较精确定位用户关系，也要保存下来
+6、上传接口相关信息保存
+7、飞哥帮忙安装jdk1.7
+
+
+
+重要接口：
+
+1、登录/v1/userlogin
+	1）如果登录成功：
+	{ "_id" : ObjectId("54971b0d4e894a4855efd66d"), "userid" : "-", "reqt" : "{\"passwd\":\"MTU5OTk5\",\"number\":\"MTU5OTk5MzkzODE=\"}", "udid" : "-", "v_time" : "2014-12-21 00:14", "network" : "1", "req_message" : "49", "useAgent" : "msb-apk", "sversion" : "1.0", "opertaion" : "4.3", "ip_2" : "118.197.213.38", "ip_3" : "-", "ip_1" : "127.0.0.1", "platform" : "1", "api" : "/v1/userlogin", "deviceid" : "SM-N9005", "timestamp" : "1419091998646", "imei" : "358022052735323", "cversion" : "10", "respt" : "{\"status\":0,\"msg\":\"ok\",\"islogin\":1,\"userid\":\"54958ac73dc5bfdc096e4171\",\"usertype\":2,\"sdescription\":\"nb老师\",\"last_active_time\":\"1419087493710\",\"nickname\":\"李兴荣\",\"mobile\":\"15999939381\",\"update_at\":\"2014-12-20T14:42:15.826Z\",\"create_at\":\"2014-12-20T14:42:15.826Z\",\"feedcount\":0,\"followcount\":0,\"acceptcount\":0,\"workscount\":0,\"money\":100,\"weight\":0,\"level\":1,\"is_block\":false,\"gender\":0,\"askmecount\":0,\"platform\":1}", "channel" : "10200005" }
+	   userid
+	   nickname
+	   mobile
+	   channel
+	   gender
+	   usertype
+	   * online_time
+2、注册/v1/userregister
+	{ "_id"	: ObjectId("54971b0c4e894a4855efb377"), "userid" : "-", "reqt" : "{\"role\":\"MQ==\",\"passwd\":\"OTUwMzA3\",\"number\":\"MTUxNDkzNDcxOTc=\",\"code\":\"NDMwNTQ2\",\"nickname\":\"56ys5LiA5Lq656ew\"}", "udid" : "-", "v_time" : "2014-12-21 00:00", "network" : "0", "req_message" : "111", "useAgent" : "msb-apk", "sversion" : "2.0", "opertaion" : "4.4.4", "ip_2" : "117.136.3.254", "ip_3" : "-", "ip_1" : "127.0.0.1", "platform" : "1", "api" : "/v1/userregister", "deviceid" : "MI 4LTE", "timestamp" : "1419091234697", "imei" : "866333026798742", "cversion" : "12", "respt" : "{\"status\":0,\"msg\":\"ok\",\"userid\":\"54959d223dc5bfdc096e576f\",\"usertype\":1,\"imei\":\"866333026798742\",\"channel\":\"10400001\",\"last_active_time\":\"1419091234951\",\"nickname\":\"第一人称\",\"mobile\":\"15149347197\",\"update_at\":\"2014-12-20T16:00:34.951Z\",\"create_at\":\"2014-12-20T16:00:34.951Z\",\"feedcount\":0,\"followcount\":0,\"acceptcount\":0,\"workscount\":0,\"money\":100,\"weight\":0,\"level\":1,\"is_block\":false,\"gender\":0,\"askmecount\":0,\"platform\":1}", "channel" : "10400001" }
+	 userid
+	 nickname
+	 mobile
+	 channel
+	 gender
+	 usertype
+	 *new_register
+	 *new_register_date
+	 
+3、退出 /v1/userlogout
+
+4、用户更新 /v1/updateuser
+	 userid
+	 usertype
+	 channel
+	 * online_time
+
+5、用户关注 /v1/follow
+{ "_id" : ObjectId("54971b0c4e894a4855efb247"), "userid" : "5462f689cb08b20518bc42bd", "reqt" : "{\"followuserid\":\"5494e4643131a87d579030e4\"}", "udid" : "-", "v_time" : "2014-12-21 00:00", "network" : "0", "req_message" : "43", "useAgent" : "msb-apk", "sversion" : "2.0", "opertaion" : "4.2.1", "ip_2" : "112.224.21.41", "ip_3" : "-", "ip_1" : "127.0.0.1", "platform" : "1", "api" : "/v1/follow", "deviceid" : "M040", "timestamp" : "1419091204258", "imei" : "868033018172249", "cversion" : "11", "respt" : "{\"status\":0,\"msg\":\"ok\"}", "channel" : "10400001" }
+   userid
+   channel
+   followuserid(新关注)
+   * online_time
+   
+
+6、用户取消关注/v1/unfollow
+   userid
+   channel
+   unfollowuserid(followuserids 中去掉)
+    * online_time
+   
+7、用户关注列表/v1/followlist
+	userid
+	channel
+	*followusers(list)
+	* online_time
+
+8、用户粉丝列表
+	userid
+	channel
+	fans
+	* online_time
+	
+9、上传 /v1/uploadimg | /v1/uploadaudio(?)
+	userid
+	channel
+	* upload  img | audio
+    * upload_time
+	
+
+

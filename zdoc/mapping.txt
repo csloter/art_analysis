@@ -1,0 +1,39 @@
+{
+	"es_type": {
+		"dynamic": "strict",
+		"properties": {
+			"my_name": {
+				"type": "string",
+				"index": "analyzed",
+				"store": true,
+				"analyzer": "ik",
+				"copy_to" : "keyword"
+			},
+			"my_name1": {
+				"type": "string",
+				"index": "analyzed"
+			},
+			"my_time" : {
+				"type" : "date"
+			},
+			"my_format_time" : {
+				"index" : "not_analyzed", 
+				"type" : "date",
+				"format" : "yyyy-MM-dd HH:mm:ss"
+			},
+			"keyword": {
+				"type": "string",
+				"index": "analyzed",
+				"store": true,
+				"analyzer": "ik"
+			},
+			"my_name_mm": {
+				"type": "string",
+				"index": "analyzed",
+				"store": true,
+				"analyzer": "mmseg",
+				"copy_to" : "keyword"
+			}
+		}
+	}
+}
