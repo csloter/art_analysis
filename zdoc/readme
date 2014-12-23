@@ -1,0 +1,20 @@
+1、准备python环境，基于python2.7
+	1) 安装 pip OR easy_install
+		https://pip.pypa.io/en/latest/installing.html
+		https://pip.pypa.io/en/latest/installing.html#install-pip
+		http://download.microsoft.com/download/7/9/6/796EF2E4-801B-4FC4-AB28-B59FBF6D907B/VCForPython27.msi windown 下需要
+		将D:\Python27\Scripts添加到系统路径
+	2) pip install MySQL-python OR http://www.codegood.com/download/11/
+	3) easy_install DBUtils
+	4) easy_install xlwt
+	5) easy_install pyyaml
+	6) easy_install pymongo
+	5) 将项目绝对路径添加到site-packages,
+		1）新建 log_statistics.pth
+		2) 添加内容 /data/stats/log_statistics/
+
+2、es
+	1)plugin.bat --install mobz/elasticsearch-head
+	2)plugin.bat --install lukas-vlcek/bigdesk
+	3)cluster.name node.name
+	4)

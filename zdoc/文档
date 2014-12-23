@@ -1,0 +1,8 @@
+1、准备python环境，基于python2.7
+	1) 安装 pip https://pip.pypa.io/en/latest/installing.html
+	2) pip install MySQL-python OR http://www.codegood.com/download/11/
+	3) 将项目绝对路径添加到site-packages
+
+
+
+

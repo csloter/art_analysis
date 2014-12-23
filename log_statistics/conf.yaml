@@ -1,0 +1,55 @@
+db:
+   name: log_stats
+   host: 127.0.0.1
+   username: root
+   password: 'root'
+   port: 3306
+ # - db2:
+ #    name: db_name
+ #    url: url
+ #    username: name
+ #    password: pwd
+ #    port: 3306
+log:
+ path:
+   api: F:\log
+ path1:
+   api: F:\log11
+
+mongo:
+  uri: mongodb://121.40.200.71:27017/
+  dbs: meishubao
+meishubao:
+  is_auth: true
+  username: meishubao
+  password: 'uej57&$*f'
+
+mongo_log_stats:
+  uri: mongodb://127.0.0.1:27017
+  dbs: stats
+stats:
+  is_auth: false
+  username: root
+  password: '123456'
+
+user_agent:
+  msg-apk: 'msg-apk'
+  msg-iphone: 'msg-iphone'
+  msg-web: 'msg-web'
+default_device_no_flag:
+  android: a
+  iphone: h
+  ipad: p
+
+mail:
+  smtp_server: smtp.qq.com 
+  smtp_port: 25
+  smtp_user: stat@meishubao.com
+  smtp_pass: tj2014
+  #to: [liutiefeng@meishubao.com, zhoufei@meishubao.com]
+  to: [csloter@163.com]
+  to_me: [csloter@163.com]
+
+xls:
+  path: D:\
+  name: channel_use.xls
