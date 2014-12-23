@@ -95,22 +95,77 @@ class Art2ApiLogEs( object ):
 				line_map['respt'] = respt
 				if api == '/v1/userlogin':
 					self.login_to_es( line_map )
-				
-	def login_to_es( self, line_map ):
-		'''每一行按照需要添加到es中'''
-		LOGIN_STATUS_OK = 0
+				elif api == '/v1/userregister':
+					self.register_to_es( line_map )
+				elif api == '/v1/updateuser':
+					self.updateuser_to_es( line_map )
+				elif api == '/v1/follow':
+					self.follow_to_es( line_map )
+	
+	def follow_to_es( self, line_map):
+		'''用户关注'''
+		FOLLOW_STATUS_OK = 0
 		if not line_map:
 			return
-		api = line_map['api']
-		
+		es_doc = {}
+		es_doc_index = {}
+		userid = line_map.get('userid')
+		if userid and userid != UNKNOW_VALUE:
+			es_doc['userid'] = userid
+			es_doc_index['userid'] = userid
+		else:
+			return
+		respt = line_map['respt']
+		if respt and respt != UNKNOW_VALUE:
+			respt_map = json.loads( respt )
+			if respt_map.get('status') == FOLLOW_STATUS_OK:
+				reqt = line_map['reqt']
+				if reqt and reqt != UNKNOW_VALUE:
+					reqt_map = json.loads( reqt )
+					followuserid = reqt_map.get('followuserid')
+					follow_script = 'if( !ctx._source.followuserids.contains("'+followuserid+'") ) ctx._source.followuserids.add("' + followuserid + '");'
+					es_doc_index['followuserids'] = [followuserid]
+					#es_doc['followuserid'] = [followuserid]
+		es_doc['online_time'] = date_util.y_m_d_H_M_date( line_map['v_time'])
+		es_doc_index['online_time'] = date_util.y_m_d_H_M_date( line_map['v_time'])
+		print follow_script
+		print es_doc_index
+		self.es.upsert( userid, es_doc, es_doc_index, follow_script )
+
+	def updateuser_to_es( self, line_map ):
+		'''用户修改信息添加到es'''
+		UPDATE_USER_STATUS_OK = 0
+		if not line_map:
+			return
+		es_doc = {}
+		userid = line_map.get('userid')
+		if userid and userid != UNKNOW_VALUE:
+			es_doc['userid'] = userid
+		else:
+			return
+		respt = line_map['respt']
+		if respt and respt != UNKNOW_VALUE:
+			respt_map = json.loads( respt )
+			if respt_map.get('status') == UPDATE_USER_STATUS_OK:
+				usertype = respt_map.get('usertype')
+				if usertype and usertype != UNKNOW_VALUE:
+					es_doc['usertype'] = usertype
+		es_doc['online_time'] = date_util.y_m_d_H_M_date( line_map['v_time'])
+		self.es.index( userid, es_doc )
+
+	def register_to_es( self, line_map ):
+		'''注册信息添加到es'''
+		REGISTER_STATUS_OK = 0
+		if not line_map:
+			return
 		respt =  line_map['respt']
 		if not respt or respt == UNKNOW_VALUE:
 			return
 		respt_map = json.loads( respt )
-		if respt_map.get('status') == LOGIN_STATUS_OK:
+		if respt_map.get('status') == REGISTER_STATUS_OK:
 			es_doc = {}
 			userid = respt_map.get('userid')
-			if userid:
+			if userid and userid != UNKNOW_VALUE:
 				es_doc['userid'] = userid
 			else:
 				return
@@ -126,13 +181,52 @@ class Art2ApiLogEs( object ):
 			gender = respt_map.get('gender')
 			if gender is not None:
 				es_doc['gender'] = gender
+			channel = respt_map.get('channel')
+			if channel:
+				es_doc['channel'] = channel
+			es_doc['register_date'] = date_util.y_m_d_H_M_date( line_map['v_time'])
+			es_doc['online_time'] = date_util.y_m_d_H_M_date( line_map['v_time'])
+			self.es.index( userid, es_doc )
+
+
+	def login_to_es( self, line_map ):
+		'''登录信息按照需要添加到es中'''
+		LOGIN_STATUS_OK = 0
+		if not line_map:
+			return
+		respt =  line_map['respt']
+		if not respt or respt == UNKNOW_VALUE:
+			return
+		respt_map = json.loads( respt )
+		if respt_map.get('status') == LOGIN_STATUS_OK:
+			es_doc = {}
+			userid = respt_map.get('userid')
+			if userid and userid != UNKNOW_VALUE:
+				es_doc['userid'] = userid
+			else:
+				return
+			nickname = respt_map.get('nickname')
+			if nickname:
+				es_doc['nickname'] = nickname
+			usertype = respt_map.get('usertype')
+			if usertype:
+				es_doc['usertype'] = usertype
+			mobile = respt_map.get('mobile')
+			if mobile:
+				es_doc['mobile'] = mobile
+			gender = respt_map.get('gender')
+			if gender is not None:
+				es_doc['gender'] = gender
+			channel = respt_map.get('channel')
+			if channel:
+				es_doc['channel'] = channel
 			es_doc['online_time'] = date_util.y_m_d_H_M_date( line_map['v_time'])
 			self.es.index( userid, es_doc )
 
 
 if __name__ == '__main__':
 	#log = LogAnalysis( date_util.past_day_Y_m_D_str(1) )
-	log = Art2ApiLogEs( '2014-12-03' )
+	log = Art2ApiLogEs( '2014-12-02' )
 	log.split_log()
 # 2 save userids
 # 3 to excel
