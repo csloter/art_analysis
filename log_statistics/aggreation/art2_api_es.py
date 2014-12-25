@@ -101,6 +101,41 @@ class Art2ApiLogEs( object ):
 					self.updateuser_to_es( line_map )
 				elif api == '/v1/follow':
 					self.follow_to_es( line_map )
+				elif api == '/v1/uploadimg' or api == '/v1/uploadaudio':
+					self.upload_to_es( line_map )
+				else:
+					self.just_to_es( line_map )
+
+	def upload_to_es( self, line_map ):
+		'''上传图片'''
+		userid = line_map.get('userid')
+		es_doc = {}
+		if userid and userid != UNKNOW_VALUE:
+			es_doc['userid'] = userid
+		else:
+			return
+		channel = line_map.get( 'channel')
+		if channel and channel != UNKNOW_VALUE:
+			es_doc['channel'] = channel
+		print line_map['v_time']
+		es_doc['online_time'] = date_util.y_m_d_H_M_date( line_map['v_time'] )
+		es_doc['upload_time'] = date_util.y_m_d_H_M_date( line_map['v_time'] )
+		self.es.index( userid, es_doc )
+
+	def just_to_es( self, line_map ):
+		'''其他所有接口，只有有操作，说明用户在线'''
+		userid = line_map.get('userid')
+		es_doc = {}
+		if userid and userid != UNKNOW_VALUE:
+			es_doc['userid'] = userid
+		else:
+			return
+		channel = line_map.get( 'channel')
+		if channel and channel != UNKNOW_VALUE:
+			es_doc['channel'] = channel
+
+		es_doc['online_time'] = date_util.y_m_d_H_M_date( line_map['v_time'])
+		self.es.index( userid, es_doc )
 	
 	def follow_to_es( self, line_map):
 		'''用户关注'''
@@ -108,29 +143,32 @@ class Art2ApiLogEs( object ):
 		if not line_map:
 			return
 		es_doc = {}
-		es_doc_index = {}
+		#es_doc_index = {}
 		userid = line_map.get('userid')
 		if userid and userid != UNKNOW_VALUE:
 			es_doc['userid'] = userid
-			es_doc_index['userid'] = userid
+			#es_doc_index['userid'] = userid
 		else:
 			return
-		respt = line_map['respt']
-		if respt and respt != UNKNOW_VALUE:
-			respt_map = json.loads( respt )
-			if respt_map.get('status') == FOLLOW_STATUS_OK:
-				reqt = line_map['reqt']
-				if reqt and reqt != UNKNOW_VALUE:
-					reqt_map = json.loads( reqt )
-					followuserid = reqt_map.get('followuserid')
-					follow_script = 'if( !ctx._source.followuserids.contains("'+followuserid+'") ) ctx._source.followuserids.add("' + followuserid + '");'
-					es_doc_index['followuserids'] = [followuserid]
-					#es_doc['followuserid'] = [followuserid]
+		channel = line_map.get( 'channel')
+		if channel and channel != UNKNOW_VALUE:
+			es_doc['channel'] = channel
+			#es_doc_index['channel'] = channel
+		#respt = line_map['respt']
+		# if respt and respt != UNKNOW_VALUE:
+		# 	respt_map = json.loads( respt )
+		# 	if respt_map.get('status') == FOLLOW_STATUS_OK:
+		# 		reqt = line_map['reqt']
+		# 		if reqt and reqt != UNKNOW_VALUE:
+		# 			reqt_map = json.loads( reqt )
+		# 			followuserid = reqt_map.get('followuserid')
+		# 			follow_script = 'if( !ctx._source.followuserids.contains("'+followuserid+'") ) ctx._source.followuserids.add("' + followuserid + '");'
+		# 			es_doc_index['followuserids'] = [followuserid]
+		# 			#es_doc['followuserid'] = [followuserid]
 		es_doc['online_time'] = date_util.y_m_d_H_M_date( line_map['v_time'])
-		es_doc_index['online_time'] = date_util.y_m_d_H_M_date( line_map['v_time'])
-		print follow_script
-		print es_doc_index
-		self.es.upsert( userid, es_doc, es_doc_index, follow_script )
+		#es_doc_index['online_time'] = date_util.y_m_d_H_M_date( line_map['v_time'])
+		self.es.index( userid , es_doc )
+		#self.es.upsert( userid, es_doc, es_doc_index, follow_script )
 
 	def updateuser_to_es( self, line_map ):
 		'''用户修改信息添加到es'''
@@ -143,6 +181,9 @@ class Art2ApiLogEs( object ):
 			es_doc['userid'] = userid
 		else:
 			return
+		channel = line_map.get( 'channel')
+		if channel and channel != UNKNOW_VALUE:
+			es_doc['channel'] = channel
 		respt = line_map['respt']
 		if respt and respt != UNKNOW_VALUE:
 			respt_map = json.loads( respt )
@@ -226,7 +267,7 @@ class Art2ApiLogEs( object ):
 
 if __name__ == '__main__':
 	#log = LogAnalysis( date_util.past_day_Y_m_D_str(1) )
-	log = Art2ApiLogEs( '2014-12-02' )
+	log = Art2ApiLogEs( '2014-12-03' )
 	log.split_log()
 # 2 save userids
 # 3 to excel
