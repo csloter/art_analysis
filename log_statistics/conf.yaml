@@ -53,3 +53,16 @@ mail:
 xls:
   path: D:\
   name: channel_use.xls
+redis:
+  host: '127.0.0.1'
+  port: 6379
+  db_index: 0
+  sub:
+    log: 'D:\art_redis.log'
+    art_channel: 'art_channel'
+es:
+  log: 'D:\art_es.log'
+  hosts: ['localhost:9200']
+  cluster: 'art_cluster'
+  index: 'art_index'
+  type: 'art_type'

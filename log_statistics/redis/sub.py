@@ -6,12 +6,16 @@ Created on 2014-11-29
 '''
 
 import sys,os,time,redis,traceback,json,logging
+from aggreation.art2_api_es import Art2ApiLogEs
+from util import yaml_conf 
 
+#配置信息
+conf_map = yaml_conf.conf
 DB_INDEX = 0
-LOG_PATH = r'D:\tt.log'
-logging.basicConfig(filename=LOG_PATH,level=logging.INFO,format='%(asctime)s - %(message)s')
+REDIS_ART_LOG_PATH = conf_map['redis']['sub']['log']
+logging.basicConfig(filename=REDIS_ART_LOG_PATH,level=logging.INFO,format='%(asctime)s - %(message)s')
 LOG = logging.getLogger()
-queue = 'art_queue'
+ART_CHANNEL = conf_map['redis']['sub']['art_channel']
 
 class ArtLogSub(object):
     ''' redis '''
@@ -21,18 +25,36 @@ class ArtLogSub(object):
         self.db_index = db_index
         try:
             pool = redis.ConnectionPool(host = self.host, port = self.port, db = self.db_index)
+            LOG.info( 'redis conn success. ip:[%s],port:[%d],db:[%d]' % ( self.host, self.port, self.db_index ) )
             self.conn  = redis.Redis(connection_pool=pool)
-            self.sub = self.conn.pubsub( )
+            self.sub = self.conn.pubsub( ignore_subscribe_messages=True)
+            LOG.info( 'redis subscribe ok. ' )
         except:
-            print traceback.format_exc()
+            LOG.error( traceback.format_exc() )
+        self.art_es = Art2ApiLogEs()
 
     def art_sub( self ):
         '''sub'''
-        self.sub.subscribe( queue )
-        print dir( self.sub )
-        for msg in self.sub.listen():
-           print msg
+        #self.sub.subscribe( **{channel: self.art_handler} )
+        # for msg in self.sub.listen():
+        #     if msg['data'] == 'KILL':
+        #         print 'kill'
+        #     print msg
+        self.sub.subscribe( ART_CHANNEL )
+        while True:
+            message = self.sub.get_message()
+            if message:
+                message_data = message['data']
+                if  message_data== 'KILL':
+                    break
+                self.art_es.split_log( message_data )
+            time.sleep( 0.001 )
+        self.sub.close()
+        LOG.info( '[' + channel + '] closeed ')
 
+    def art_handler( self, message ):
+        ''''''
+        print message['data']
     
 
 if __name__ == '__main__':

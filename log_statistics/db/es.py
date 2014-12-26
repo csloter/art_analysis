@@ -6,9 +6,14 @@ Created on 2014-11-29
 '''
 from elasticsearch import Elasticsearch
 from util import date_util
-ES_INDEX = 'art_index'
-ES_TYPE = 'art_type'
-ES_CLUSTER = 'art_cluster'
+from util import yaml_conf 
+
+#配置信息
+conf_map = yaml_conf.conf
+ES_INDEX = conf_map['es']['index']
+ES_TYPE = conf_map['es']['type']
+ES_CLUSTER = conf_map['es']['cluster']
+HOSTS = conf_map['es']['hosts']
 
 class Es(object):
     '''just es '''
@@ -54,12 +59,12 @@ class Es(object):
 
 if __name__ == '__main__':
     e = Es( ES_INDEX, ES_TYPE)
-    e.delete( '54794d358f7122db4d1f248a')
-    d_id = '11111'
-    doc = { 'my_list':[1,2] }
-    script='if (ctx._source.containsKey("my_list")) {ctx._source.my_list += 4;} else {ctx._source.paymentInfos = [5]}'
-    print script
-    e.upsert( d_id, doc, doc, script )
+    # e.delete( '54794d358f7122db4d1f248a')
+    # d_id = '11111'
+    # doc = { 'my_list':[1,2] }
+    # script='if (ctx._source.containsKey("my_list")) {ctx._source.my_list += 4;} else {ctx._source.paymentInfos = [5]}'
+    # print script
+    # e.upsert( d_id, doc, doc, script )
     #import datetime
     #a = {'name': 'name1', 'val': None, 'on_line':True, 'register_date': datetime.datetime.now(), 'online_time':datetime.datetime.now(), 'upload_img_time': datetime.datetime.now() }
     # query = {

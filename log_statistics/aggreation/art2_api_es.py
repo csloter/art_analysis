@@ -8,6 +8,9 @@ import re
 import os.path
 import json
 import gzip
+import traceback
+import logging
+from logging import handlers
 import constants
 from util import yaml_conf 
 from util import date_util
@@ -17,94 +20,84 @@ from db.es import Es
 conf_map = yaml_conf.conf
 #无效字段
 UNKNOW_VALUE = '-'
-#渠道对应关系
-ALL_CHANNEL = constants.CHANNELS
-#其他渠道
-CHANNEL_OTHER = 'other'
 
-#注册成功会打/v1/studentselfprofile OR /v1/teracherselfprofile
-REGISTER_RESPONSE_STUDENT = '/v1/studentselfprofile'
-REGISTER_RESPONSE_TERACHER = '/v1/teracherselfprofile'
-REGISTER_RESPONSE = '/v1/userregister'
-#log 文件名称
-LOG_FILE_NAME = 'meishubao_api.log'
-
+es_tracer = logging.getLogger('elasticsearch.trace')
+es_tracer.propagate = False
+es_tracer.setLevel(logging.ERROR)
+es_tracer_handler=logging.handlers.RotatingFileHandler(r'd:\top-camps-full.log',
+                                                   maxBytes=0.5*10**9,
+                                                   backupCount=3)
+es_tracer.addHandler(es_tracer_handler)
 class Art2ApiLogEs( object ):
 	''''''
-	def __init__(self, date):
-		'''
-		date : %Y-%m-%d
-		'''
-		self.date = date
+	def __init__(self):
 		self.es = Es()
 
-	def split_log( self ):
+	def split_log( self, log_message ):
 		''''''
-		art_log = os.path.join( conf_map['log']['path']['api'], '.'.join( (LOG_FILE_NAME,self.date ) ) )
-		#如果文件不存在
-		if not os.path.exists( art_log ):
-			return
-		with open( art_log ) as log_file:
-			details = []
-			count = 0
-			for line in log_file:
-				line_map = {}
-				line = line.strip()
-				if not line:
-					continue 
-				lines  = line.split( '<|>' ) 
-				v_time = lines[0][:16]
-				line_map['v_time'] = v_time
-				api = lines[0].split('info:')[1].strip()
-				line_map['api'] = api
-				ip_1 = lines[1]
-				line_map['ip_1'] = ip_1
-				ip_2 = lines[2]
-				line_map['ip_2'] = ip_2
-				ip_3 = lines[3]
-				line_map['ip_3'] = ip_3
-				sversion = lines[5]
-				line_map['sversion'] = sversion
-				cversion = lines[6]
-				line_map['cversion'] = cversion
-				useAgent = lines[7]
-				imei = lines[8]
-				line_map['imei'] = imei
-				platform = lines[9]
-				line_map['platform'] = platform
-				opertaion = lines[10]
-				line_map['opertaion'] = opertaion
-				deviceid = lines[11]
-				line_map['deviceid'] = deviceid
-				timestamp = lines[12]
-				line_map['timestamp'] = timestamp
-				network = lines[13]
-				line_map['network'] = network
-				userid = lines[14]
-				line_map['userid'] = userid
-				channel = lines[15]
-				line_map['channel'] = channel
-				udid = lines[16]
-				line_map['udid'] = udid
-				req_message = lines[18]
-				line_map['req_message'] = req_message
-				#resp_message = lines[19]
-				reqt = lines[20]
-				line_map['reqt'] = reqt
-				respt = lines[24]
-				line_map['respt'] = respt
-				if api == '/v1/userlogin':
-					self.login_to_es( line_map )
-				elif api == '/v1/userregister':
-					self.register_to_es( line_map )
-				elif api == '/v1/updateuser':
-					self.updateuser_to_es( line_map )
-				elif api == '/v1/follow':
-					self.follow_to_es( line_map )
-				elif api == '/v1/uploadimg' or api == '/v1/uploadaudio':
-					self.upload_to_es( line_map )
-				else:
-					self.just_to_es( line_map )
+		try:
+			if not log_message:
+				return
+			line = log_message
+			line_map = {}
+			line = line.strip()
+			if not line:
+				return 
+			lines  = line.split( '<|>' ) 
+			v_time = lines[0][:16]
+			line_map['v_time'] = v_time
+			api = lines[0].split('info:')[1].strip()
+			line_map['api'] = api
+			ip_1 = lines[1]
+			line_map['ip_1'] = ip_1
+			ip_2 = lines[2]
+			line_map['ip_2'] = ip_2
+			ip_3 = lines[3]
+			line_map['ip_3'] = ip_3
+			sversion = lines[5]
+			line_map['sversion'] = sversion
+			cversion = lines[6]
+			line_map['cversion'] = cversion
+			useAgent = lines[7]
+			imei = lines[8]
+			line_map['imei'] = imei
+			platform = lines[9]
+			line_map['platform'] = platform
+			opertaion = lines[10]
+			line_map['opertaion'] = opertaion
+			deviceid = lines[11]
+			line_map['deviceid'] = deviceid
+			timestamp = lines[12]
+			line_map['timestamp'] = timestamp
+			network = lines[13]
+			line_map['network'] = network
+			userid = lines[14]
+			line_map['userid'] = userid
+			channel = lines[15]
+			line_map['channel'] = channel
+			udid = lines[16]
+			line_map['udid'] = udid
+			req_message = lines[18]
+			line_map['req_message'] = req_message
+			#resp_message = lines[19]
+			reqt = lines[20]
+			line_map['reqt'] = reqt
+			respt = lines[24]
+			line_map['respt'] = respt
+			if api == '/v1/userlogin':
+				self.login_to_es( line_map )
+			elif api == '/v1/userregister':
+				self.register_to_es( line_map )
+			elif api == '/v1/updateuser':
+				self.updateuser_to_es( line_map )
+			elif api == '/v1/follow':
+				self.follow_to_es( line_map )
+			elif api == '/v1/uploadimg' or api == '/v1/uploadaudio':
+				self.upload_to_es( line_map )
+			else:
+				self.just_to_es( line_map )
+		except:
+			 print traceback.format_exc()
 
 	def upload_to_es( self, line_map ):
 		'''上传图片'''
@@ -117,7 +110,6 @@ class Art2ApiLogEs( object ):
 		channel = line_map.get( 'channel')
 		if channel and channel != UNKNOW_VALUE:
 			es_doc['channel'] = channel
-		print line_map['v_time']
 		es_doc['online_time'] = date_util.y_m_d_H_M_date( line_map['v_time'] )
 		es_doc['upload_time'] = date_util.y_m_d_H_M_date( line_map['v_time'] )
 		self.es.index( userid, es_doc )
@@ -267,8 +259,8 @@ class Art2ApiLogEs( object ):
 
 if __name__ == '__main__':
 	#log = LogAnalysis( date_util.past_day_Y_m_D_str(1) )
-	log = Art2ApiLogEs( '2014-12-03' )
-	log.split_log()
+	log = Art2ApiLogEs()
+	log.split_log('2014-12-04 23:59 - info: /v1/paintlist/<|>127.0.0.1<|>49.211.60.231<|>-<|>head<|>1.02<|>1.0.1<|>msb-iphone<|>h1417449566<|>2<|>7.1.2<|>iPhone5,2<|>2147483647<|>1<|>547458c77612fbfe662981ab<|>-<|>A7BF1E8E-D17A-42EF-98D7-FDBB287AC0C9<|>req<|>67<|>reqt<|>{"replytype":"0","count":"20","order":"1","questype":"0","pid":"1"}<|>resp<|>11034<|>respt<|>-<|>status<|>0<|>msg<|>ok<|>time<|>561<|>perf<|>100<|>')
 # 2 save userids
 # 3 to excel
 # 4 send mail

@@ -18,3 +18,7 @@
 	2)plugin.bat --install lukas-vlcek/bigdesk
 	3)cluster.name node.name
 	4)
+3、redis
+	1)redis 安装
+	2)python redis安装 easy_install redis
+	3)pub / sub
