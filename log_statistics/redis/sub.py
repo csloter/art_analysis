@@ -16,6 +16,8 @@ REDIS_ART_LOG_PATH = conf_map['redis']['sub']['log']
 logging.basicConfig(filename=REDIS_ART_LOG_PATH,level=logging.INFO,format='%(asctime)s - %(message)s')
 LOG = logging.getLogger()
 ART_CHANNEL = conf_map['redis']['sub']['art_channel']
+ART_CHANNEL_UNCOSUME = conf_map['redis']['sub']['art_channel_unconsume']
+REDIS_HOST = conf_map['redis']['host']
 
 class ArtLogSub(object):
     ''' redis '''
@@ -24,7 +26,7 @@ class ArtLogSub(object):
         self.port = port
         self.db_index = db_index
         try:
-            pool = redis.ConnectionPool(host = self.host, port = self.port, db = self.db_index)
+            pool = redis.ConnectionPool(host = self.host, port = self.port, db = self.db_index )
             LOG.info( 'redis conn success. ip:[%s],port:[%d],db:[%d]' % ( self.host, self.port, self.db_index ) )
             self.conn  = redis.Redis(connection_pool=pool)
             self.sub = self.conn.pubsub( ignore_subscribe_messages=True)
@@ -50,7 +52,27 @@ class ArtLogSub(object):
                 self.art_es.split_log( message_data )
             time.sleep( 0.001 )
         self.sub.close()
-        LOG.info( '[' + channel + '] closeed ')
+        LOG.info( '[' + ART_CHANNEL + '] closeed ')
+
+    def art_sub_unconsume( self ):
+        '''sub'''
+        #self.sub.subscribe( **{channel: self.art_handler} )
+        # for msg in self.sub.listen():
+        #     if msg['data'] == 'KILL':
+        #         print 'kill'
+        #     print msg
+        self.sub.subscribe( ART_CHANNEL_UNCOSUME )
+        LOG.info( '[' + ART_CHANNEL_UNCOSUME + '] closeed ' )
+        while True:
+            message = self.sub.get_message()
+            if message:
+                message_data = message['data']
+                if  message_data== 'KILL':
+                    break
+                self.art_es.split_log( message_data )
+            time.sleep( 0.001 )
+        self.sub.close()
+        LOG.info( '[' + ART_CHANNEL_UNCOSUME + '] closeed ')
 
     def art_handler( self, message ):
         ''''''
@@ -58,6 +80,6 @@ class ArtLogSub(object):
     
 
 if __name__ == '__main__':
-    r = ArtLogSub('127.0.0.1', 6379, 0)
+    r = ArtLogSub(REDIS_HOST, 6379, 0)
     r.art_sub()
     #print dir( r.pipe)

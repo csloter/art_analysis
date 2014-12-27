@@ -21,12 +21,12 @@ conf_map = yaml_conf.conf
 #无效字段
 UNKNOW_VALUE = '-'
 
+LOG_PATH=conf_map['es']['log_trace']
 es_tracer = logging.getLogger('elasticsearch.trace')
 es_tracer.propagate = False
 es_tracer.setLevel(logging.ERROR)
-es_tracer_handler=logging.handlers.RotatingFileHandler(r'd:\top-camps-full.log',
-                                                   maxBytes=0.5*10**9,
-                                                   backupCount=3)
+es_tracer_handler=logging.handlers.RotatingFileHandler(LOG_PATH,maxBytes=0.5*10**9, backupCount=3)
+
 es_tracer.addHandler(es_tracer_handler)
 class Art2ApiLogEs( object ):
 	''''''
@@ -44,9 +44,9 @@ class Art2ApiLogEs( object ):
 			if not line:
 				return 
 			lines  = line.split( '<|>' ) 
-			v_time = lines[0][:16]
-			line_map['v_time'] = v_time
-			api = lines[0].split('info:')[1].strip()
+			line_map['v_time'] = date_util.now()
+			#v_time = lines[0][:16]
+			api = lines[0].strip()
 			line_map['api'] = api
 			ip_1 = lines[1]
 			line_map['ip_1'] = ip_1
@@ -110,8 +110,8 @@ class Art2ApiLogEs( object ):
 		channel = line_map.get( 'channel')
 		if channel and channel != UNKNOW_VALUE:
 			es_doc['channel'] = channel
-		es_doc['online_time'] = date_util.y_m_d_H_M_date( line_map['v_time'] )
-		es_doc['upload_time'] = date_util.y_m_d_H_M_date( line_map['v_time'] )
+		es_doc['online_time'] = date_util.y_m_d_H_M_S_date( line_map['v_time'] )
+		es_doc['upload_time'] = date_util.y_m_d_H_M_S_date( line_map['v_time'] )
 		self.es.index( userid, es_doc )
 
 	def just_to_es( self, line_map ):
@@ -126,7 +126,7 @@ class Art2ApiLogEs( object ):
 		if channel and channel != UNKNOW_VALUE:
 			es_doc['channel'] = channel
 
-		es_doc['online_time'] = date_util.y_m_d_H_M_date( line_map['v_time'])
+		es_doc['online_time'] = date_util.y_m_d_H_M_S_date( line_map['v_time'])
 		self.es.index( userid, es_doc )
 	
 	def follow_to_es( self, line_map):
@@ -157,7 +157,7 @@ class Art2ApiLogEs( object ):
 		# 			follow_script = 'if( !ctx._source.followuserids.contains("'+followuserid+'") ) ctx._source.followuserids.add("' + followuserid + '");'
 		# 			es_doc_index['followuserids'] = [followuserid]
 		# 			#es_doc['followuserid'] = [followuserid]
-		es_doc['online_time'] = date_util.y_m_d_H_M_date( line_map['v_time'])
+		es_doc['online_time'] = date_util.y_m_d_H_M_S_date( line_map['v_time'])
 		#es_doc_index['online_time'] = date_util.y_m_d_H_M_date( line_map['v_time'])
 		self.es.index( userid , es_doc )
 		#self.es.upsert( userid, es_doc, es_doc_index, follow_script )
@@ -183,7 +183,7 @@ class Art2ApiLogEs( object ):
 				usertype = respt_map.get('usertype')
 				if usertype and usertype != UNKNOW_VALUE:
 					es_doc['usertype'] = usertype
-		es_doc['online_time'] = date_util.y_m_d_H_M_date( line_map['v_time'])
+		es_doc['online_time'] = date_util.y_m_d_H_M_S_date( line_map['v_time'])
 		self.es.index( userid, es_doc )
 
 	def register_to_es( self, line_map ):
@@ -217,8 +217,8 @@ class Art2ApiLogEs( object ):
 			channel = respt_map.get('channel')
 			if channel:
 				es_doc['channel'] = channel
-			es_doc['register_date'] = date_util.y_m_d_H_M_date( line_map['v_time'])
-			es_doc['online_time'] = date_util.y_m_d_H_M_date( line_map['v_time'])
+			es_doc['register_date'] = date_util.y_m_d_H_M_S_date( line_map['v_time'])
+			es_doc['online_time'] = date_util.y_m_d_H_M_S_date( line_map['v_time'])
 			self.es.index( userid, es_doc )
 
 
@@ -253,14 +253,14 @@ class Art2ApiLogEs( object ):
 			channel = respt_map.get('channel')
 			if channel:
 				es_doc['channel'] = channel
-			es_doc['online_time'] = date_util.y_m_d_H_M_date( line_map['v_time'])
+			es_doc['online_time'] = date_util.y_m_d_H_M_S_date( line_map['v_time'])
 			self.es.index( userid, es_doc )
 
 
 if __name__ == '__main__':
 	#log = LogAnalysis( date_util.past_day_Y_m_D_str(1) )
 	log = Art2ApiLogEs()
-	log.split_log('2014-12-04 23:59 - info: /v1/paintlist/<|>127.0.0.1<|>49.211.60.231<|>-<|>head<|>1.02<|>1.0.1<|>msb-iphone<|>h1417449566<|>2<|>7.1.2<|>iPhone5,2<|>2147483647<|>1<|>547458c77612fbfe662981ab<|>-<|>A7BF1E8E-D17A-42EF-98D7-FDBB287AC0C9<|>req<|>67<|>reqt<|>{"replytype":"0","count":"20","order":"1","questype":"0","pid":"1"}<|>resp<|>11034<|>respt<|>-<|>status<|>0<|>msg<|>ok<|>time<|>561<|>perf<|>100<|>')
+	log.split_log('/v1/paintlist/<|>127.0.0.1<|>49.211.60.231<|>-<|>head<|>1.02<|>1.0.1<|>msb-iphone<|>h1417449566<|>2<|>7.1.2<|>iPhone5,2<|>2147483647<|>1<|>547458c77612fbfe662981ab<|>-<|>A7BF1E8E-D17A-42EF-98D7-FDBB287AC0C9<|>req<|>67<|>reqt<|>{"replytype":"0","count":"20","order":"1","questype":"0","pid":"1"}<|>resp<|>11034<|>respt<|>-<|>status<|>0<|>msg<|>ok<|>time<|>561<|>perf<|>100<|>')
 # 2 save userids
 # 3 to excel
 # 4 send mail

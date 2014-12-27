@@ -60,8 +60,10 @@ redis:
   sub:
     log: 'D:\art_redis.log'
     art_channel: 'art_channel'
+    art_channel_unconsume: 'art_channel_unconsume'
 es:
   log: 'D:\art_es.log'
+  log_trace: 'D:\art_es_trace.log'
   hosts: ['localhost:9200']
   cluster: 'art_cluster'
   index: 'art_index'

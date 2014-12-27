@@ -17,10 +17,16 @@ def past_day_YmD_str( i ):
 
 def y_m_d_H_M_date( date_str):
     ''''''
-    return datetime.datetime.strptime(date_str, "%Y-%m-%d %H:%M")
+    return datetime.datetime.strptime(date_str, '%Y-%m-%d %H:%M')
 
 def past_minutes( i ):
     return datetime.datetime.now() + datetime.timedelta(minutes=-i)
 
+def now( ):
+    return datetime.datetime.now().strftime( '%Y-%m-%d %H:%M:%S' )  
+
+def y_m_d_H_M_S_date( date_str):
+    ''''''
+    return datetime.datetime.strptime(date_str, '%Y-%m-%d %H:%M:%S')
 if __name__ == '__main__':
-    print past_minutes(10)
+    print now()
