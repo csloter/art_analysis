@@ -45,7 +45,7 @@ class Art2ApiLogEs( object ):
 			if not line:
 				return 
 			lines  = line.split( '<|>' ) 
-			line_map['v_time'] = datetime.datetime.now()
+			line_map['v_time'] = date_util.now_utc()
 			#v_time = lines[0][:16]
 			api = lines[0].strip()
 			line_map['api'] = api

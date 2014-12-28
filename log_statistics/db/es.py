@@ -59,7 +59,7 @@ class Es(object):
 
 if __name__ == '__main__':
     e = Es( ES_INDEX, ES_TYPE)
-    e.delete( '547458c77612fbfe662981ab')
+    e.delete( '547330e9d0d34a6048cfffce')
     # d_id = '11111'
     # doc = { 'my_list':[1,2] }
     # script='if (ctx._source.containsKey("my_list")) {ctx._source.my_list += 4;} else {ctx._source.paymentInfos = [5]}'

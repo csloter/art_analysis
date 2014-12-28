@@ -16,13 +16,13 @@ class MongoDbDao( object ):
 	def __init__(self):
 		''''''
 		#self.client = MongoClient( conf_map['mongo']['uri'] )
-		self.client_log_stats = MongoClient( conf_map['mongo_log_stats']['uri'] ) 
-		dbs = conf_map['mongo_log_stats']['dbs'].split(',')
-		self.db_pool = {}
-		for db_name in dbs:
-			db = self.get_db( self.client_log_stats, db_name )
-			if self.auth( db, db_name ):
-				self.db_pool[db_name] = db 
+		# self.client_log_stats = MongoClient( conf_map['mongo_log_stats']['uri'] ) 
+		# dbs = conf_map['mongo_log_stats']['dbs'].split(',')
+		# self.db_pool = {}
+		# for db_name in dbs:
+		# 	db = self.get_db( self.client_log_stats, db_name )
+		# 	if self.auth( db, db_name ):
+		# 		self.db_pool[db_name] = db 
 
 	def get_db(self, client, db_name ):
 		#return self.client[db_name]
@@ -107,6 +107,12 @@ class MongoDbDao( object ):
 	def iso_datetime( self, date_time_str ):
 		'''mongodb保存的是isodate '''
 		d = datetime.strptime( date_time_str, '%Y-%m-%d %H:%M:%S')
+		n = datetime.datetime.now()
+		return 	datetime( d.year, d.month, d.day, d.hour, d.minute, d.second, tzinfo = utc.utc )
+
+	def now_utc( self ):
+		''''''
+		d = datetime.now()
 		return 	datetime( d.year, d.month, d.day, d.hour, d.minute, d.second, tzinfo = utc.utc )
 
 	def date_str_2_int( self, date_str ):
@@ -118,7 +124,7 @@ class MongoDbDao( object ):
 if __name__ == '__main__':
 	dao = MongoDbDao()
 	#db = dao.getDb( 'search_mysql')
-	print dao.query_exists_device_nos( )
+	print dao.now_utc( )
 	#print datetime('2014','10','30','17', tzinfo= utc.gmt8 ) 
 	#d = datetime.strptime('2013-12-12 12:12:12', '%Y-%m-%d %H:%M:%S' )
 	#print dao.iso_datetime( '2013-12-12 12:12:12' )
