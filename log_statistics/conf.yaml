@@ -66,5 +66,5 @@ es:
   log_trace: 'D:\art_es_trace.log'
   hosts: ['localhost:9200']
   cluster: 'art_cluster'
-  index: 'art_index'
+  index: 'art_index_test'
   type: 'art_type'

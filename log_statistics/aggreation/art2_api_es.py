@@ -10,6 +10,7 @@ import json
 import gzip
 import traceback
 import logging
+import datetime
 from logging import handlers
 import constants
 from util import yaml_conf 
@@ -44,7 +45,7 @@ class Art2ApiLogEs( object ):
 			if not line:
 				return 
 			lines  = line.split( '<|>' ) 
-			line_map['v_time'] = date_util.now()
+			line_map['v_time'] = datetime.datetime.now()
 			#v_time = lines[0][:16]
 			api = lines[0].strip()
 			line_map['api'] = api
@@ -110,8 +111,10 @@ class Art2ApiLogEs( object ):
 		channel = line_map.get( 'channel')
 		if channel and channel != UNKNOW_VALUE:
 			es_doc['channel'] = channel
-		es_doc['online_time'] = date_util.y_m_d_H_M_S_date( line_map['v_time'] )
-		es_doc['upload_time'] = date_util.y_m_d_H_M_S_date( line_map['v_time'] )
+		#es_doc['online_time'] = date_util.y_m_d_H_M_S_date( line_map['v_time'] )
+		#es_doc['upload_time'] = date_util.y_m_d_H_M_S_date( line_map['v_time'] )
+		es_doc['online_time'] = line_map['v_time'] 
+		es_doc['upload_time'] = line_map['v_time'] 
 		self.es.index( userid, es_doc )
 
 	def just_to_es( self, line_map ):
@@ -126,7 +129,8 @@ class Art2ApiLogEs( object ):
 		if channel and channel != UNKNOW_VALUE:
 			es_doc['channel'] = channel
 
-		es_doc['online_time'] = date_util.y_m_d_H_M_S_date( line_map['v_time'])
+		#es_doc['online_time'] = date_util.y_m_d_H_M_S_date( line_map['v_time'])
+		es_doc['online_time'] = line_map['v_time']
 		self.es.index( userid, es_doc )
 	
 	def follow_to_es( self, line_map):
@@ -157,7 +161,7 @@ class Art2ApiLogEs( object ):
 		# 			follow_script = 'if( !ctx._source.followuserids.contains("'+followuserid+'") ) ctx._source.followuserids.add("' + followuserid + '");'
 		# 			es_doc_index['followuserids'] = [followuserid]
 		# 			#es_doc['followuserid'] = [followuserid]
-		es_doc['online_time'] = date_util.y_m_d_H_M_S_date( line_map['v_time'])
+		es_doc['online_time'] = line_map['v_time']
 		#es_doc_index['online_time'] = date_util.y_m_d_H_M_date( line_map['v_time'])
 		self.es.index( userid , es_doc )
 		#self.es.upsert( userid, es_doc, es_doc_index, follow_script )
@@ -183,7 +187,7 @@ class Art2ApiLogEs( object ):
 				usertype = respt_map.get('usertype')
 				if usertype and usertype != UNKNOW_VALUE:
 					es_doc['usertype'] = usertype
-		es_doc['online_time'] = date_util.y_m_d_H_M_S_date( line_map['v_time'])
+		es_doc['online_time'] = line_map['v_time']
 		self.es.index( userid, es_doc )
 
 	def register_to_es( self, line_map ):
@@ -217,8 +221,8 @@ class Art2ApiLogEs( object ):
 			channel = respt_map.get('channel')
 			if channel:
 				es_doc['channel'] = channel
-			es_doc['register_date'] = date_util.y_m_d_H_M_S_date( line_map['v_time'])
-			es_doc['online_time'] = date_util.y_m_d_H_M_S_date( line_map['v_time'])
+			es_doc['register_date'] =  line_map['v_time']
+			es_doc['online_time'] =  line_map['v_time']
 			self.es.index( userid, es_doc )
 
 
@@ -253,14 +257,18 @@ class Art2ApiLogEs( object ):
 			channel = respt_map.get('channel')
 			if channel:
 				es_doc['channel'] = channel
-			es_doc['online_time'] = date_util.y_m_d_H_M_S_date( line_map['v_time'])
+			es_doc['online_time'] =  line_map['v_time']
 			self.es.index( userid, es_doc )
 
 
 if __name__ == '__main__':
 	#log = LogAnalysis( date_util.past_day_Y_m_D_str(1) )
 	log = Art2ApiLogEs()
-	log.split_log('/v1/paintlist/<|>127.0.0.1<|>49.211.60.231<|>-<|>head<|>1.02<|>1.0.1<|>msb-iphone<|>h1417449566<|>2<|>7.1.2<|>iPhone5,2<|>2147483647<|>1<|>547458c77612fbfe662981ab<|>-<|>A7BF1E8E-D17A-42EF-98D7-FDBB287AC0C9<|>req<|>67<|>reqt<|>{"replytype":"0","count":"20","order":"1","questype":"0","pid":"1"}<|>resp<|>11034<|>respt<|>-<|>status<|>0<|>msg<|>ok<|>time<|>561<|>perf<|>100<|>')
+	log_register = '/v1/userregister<|>127.0.0.1<|>223.104.21.225<|>-<|>head<|>2.0<|>11<|>msb-apk<|>864085025992153<|>1<|>4.3<|>G620-L75<|>1417449372246<|>0<|>-<|>10100003<|>-<|>req<|>103<|>reqt<|>{"role":"MQ==","passwd":"MTAwODYx","number":"MTM1MTExODcxMjc=","code":"NDMxNDYy","nickname":"5pu+6aKi"}<|>resp<|>418<|>respt<|>{"status":0,"msg":"ok","userid":"547c8fa3c1c30576558cb978","usertype":1,"imei":"864085025992153","channel":"10100003","last_active_time":1417449379320,"nickname":"曾颢","mobile":"13511187127","update_at":"2014-12-01T15:56:19.320Z","create_at":"2014-12-01T15:56:19.320Z","feedcount":0,"followcount":0,"acceptcount":0,"workscount":0,"money":100,"weight":0,"level":1,"is_block":false,"gender":0,"askmecount":0,"platform":1}<|>status<|>0<|>msg<|>ok<|>time<|>9148<|>perf<|>100<|>'
+	log_login='/v1/userlogin<|>127.0.0.1<|>117.136.31.19<|>-<|>head<|>1.0<|>10<|>msb-apk<|>864837020116927<|>1<|>4.4<|>COOLPAD<|>1417449155293<|>4<|>-<|>10100005<|>-<|>req<|>49<|>reqt<|>{"passwd":"OTYwODI5","number":"MTM1MDE0NTQ3NjY="}<|>resp<|>408<|>respt<|>{"status":0,"msg":"ok","islogin":1,"userid":"547b2cb20bf7da4c5cb8d72c","usertype":2,"sdescription":"nb老师","last_active_time":1417365065944,"nickname":"美院点评","mobile":"13501454766","update_at":"2014-11-30T14:41:54.045Z","create_at":"2014-11-30T14:41:54.045Z","feedcount":0,"followcount":0,"acceptcount":0,"workscount":0,"money":109,"weight":0,"level":1,"is_block":false,"gender":0,"askmecount":0,"platform":1}<|>status<|>0<|>msg<|>ok<|>time<|>595<|>perf<|>100<|>'
+	log_updateuser='/v1/updateuser<|>127.0.0.1<|>122.4.42.35<|>-<|>head<|>2.0<|>11<|>msb-apk<|>864690025670228<|>1<|>4.4.4<|>MI 3W<|>1417448929920<|>1<|>547800c08f7122db4d1e3dd8<|>10100007<|>-<|>req<|>28<|>reqt<|>{"gender":"2","nickname":""}<|>resp<|>72<|>respt<|>{"status":0,"msg":"ok","userid":"547800c08f7122db4d1e3dd8","usertype":1}<|>status<|>0<|>msg<|>ok<|>time<|>543<|>perf<|>100<|>'
+	log_upload='/v1/uploadaudio<|>127.0.0.1<|>124.239.208.132<|>-<|>head<|>2.0<|>1.1.6<|>msb-iphone<|>h1417448916<|>2<|>7.1.1<|>iPhone5,2<|>2147483647<|>1<|>547330e9d0d34a6048cfffce<|>-<|>04383B2B-3926-4CB4-BB21-B2016C81FA26<|>req<|>152<|>reqt<|>{"questid":"547bd539d22ff9de6fe1c0bb","duration":"54","audiourl":"http://audiomeishubao.b0.upaiyun.com/2014-12-01/110a2b28b2266e280bb4cc647327cb8f.ogg"}<|>resp<|>131<|>respt<|>{"status":0,"msg":"ok","answerid":"547c8dd4c1c30576558cb7b3","audioid":"547c8dd4c1c30576558cb7b5","create_timestamp":1417448916054}<|>status<|>0<|>msg<|>ok<|>time<|>60<|>perf<|>50<|>'
+	log.split_log(log_upload)
 # 2 save userids
 # 3 to excel
 # 4 send mail
