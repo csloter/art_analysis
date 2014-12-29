@@ -24,3 +24,11 @@
 	2)python redis安装 easy_install redis
 	3)redis useage https://pypi.python.org/pypi/redis/
 4、java1.7
+5、 new
+	新增用户 /v1/userregister
+	新提问题 /v1/quesion
+	新增回答 /v3/answerwork /v2/answer
+	新增评论 /v2/comment/create
+	新增点赞 /v2/topic/support
+	新增感谢 /v1/accept | /v2/accept
+	新增上传 /v1/uploadaudio

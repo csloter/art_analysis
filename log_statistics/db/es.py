@@ -20,7 +20,7 @@ class Es(object):
 
     def __init__(self, es_index=None, es_type=None):
         '''es'''
-        hosts = ['localhost:9200']
+        hosts = HOSTS
         if es_index:
             self.es_index = es_index
         else:
@@ -38,12 +38,11 @@ class Es(object):
             doc : {}
         '''
         res = self.es_client.index(index=self.es_index, doc_type=self.es_type, id=d_id, body=doc)
-        print res['created']
 
     def search( self, query):
         '''q'''
-        response = self.es_client.search( index=self.es_index, doc_type=self.es_type, body=query)
-        print response['hits']['total']
+        response = self.es_client.search( body=query)
+        print response['hits']
 
     def delete( self, doc_id ):
         '''delete'''
@@ -57,9 +56,17 @@ class Es(object):
             print e
             self.index( doc_id, doc_index )
 
+    def index( self , doc):
+        '''索引信息
+            id : userid
+            doc : {}
+        '''
+        art_index = ES_INDEX + '_' +date_util.day_YmD_str() 
+        res = self.es_client.index(index=art_index, doc_type=self.es_type, body=doc)
+
 if __name__ == '__main__':
     e = Es( ES_INDEX, ES_TYPE)
-    e.delete( '547330e9d0d34a6048cfffce')
+    #e.delete( '547330e9d0d34a6048cfffce')
     # d_id = '11111'
     # doc = { 'my_list':[1,2] }
     # script='if (ctx._source.containsKey("my_list")) {ctx._source.my_list += 4;} else {ctx._source.paymentInfos = [5]}'
@@ -73,7 +80,7 @@ if __name__ == '__main__':
                 'filter':{
                     #'term' : {'userid':'546d40dfcb08b20518bff6b7'}
                     'range' :{
-                        'online_time':{'gte': date_util.past_minutes(10)}
+                        'v_time':{'gte': date_util.past_utc_minutes(10)}
                     }
                 }
 
@@ -81,4 +88,4 @@ if __name__ == '__main__':
         }
     }
     print query
-    # e.search( query )
+    e.search( query )

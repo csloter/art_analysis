@@ -36,5 +36,24 @@ def now_utc( ):
     # print d
     # return  datetime.datetime( d.year, d.month, d.day, d.hour, d.minute, d.second, tzinfo = utc.utc )
 
+def day_YmD_str():
+    return datetime.datetime.now().strftime( '%Y%m%d' )
+
+def past_utc_minutes( i ):
+    return datetime.datetime.utcnow() + datetime.timedelta(minutes=-i)
+
+def y_m_d_H_M_S_utc_date( date_str):
+    '''hour -8'''
+    return datetime.datetime.strptime(date_str, '%Y-%m-%d %H:%M:%S') + datetime.timedelta(hours=-8)
+
+def timestamp_to_utc_datetime( timestamps ):
+    '''时间戳转为utc时间'''
+    try:
+        return datetime.datetime.fromtimestamp( int(timestamps)/1000.0 ) + datetime.timedelta(hours=-8)
+    except:
+        return datetime.datetime.utcnow()
+
 if __name__ == '__main__':
-    print past_minutes(1)
+    print timestamp_to_utc_datetime(1419839097907)
+    import time
+    print time.time()

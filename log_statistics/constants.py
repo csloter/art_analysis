@@ -18,4 +18,9 @@ CHANNELS = {
 '20100001': u'柳铁锋'
 }
 
+# def f():
+#     print 111
+# import threading
+# threading.Thread( target=f, name='dfdfdf').start()
 
+# threading.Thread( target=f, name ='bdbd').start()
