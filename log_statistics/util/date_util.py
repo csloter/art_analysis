@@ -8,6 +8,7 @@ import datetime
 from util import utc
 
 def past_day( i ):
+    '''住前 i 天'''
     return datetime.datetime.now() + datetime.timedelta(days=-i)
 
 def past_day_Y_m_D_str( i ):

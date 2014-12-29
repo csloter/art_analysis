@@ -26,7 +26,7 @@ class ArtLogSub(object):
         self.port = port
         self.db_index = db_index
         try:
-            pool = redis.ConnectionPool(host = self.host, port = self.port, db = self.db_index )
+            pool = redis.ConnectionPool(host = self.host, port = self.port, db = self.db_index, password='meishubao' )
             LOG.info( 'redis conn success. ip:[%s],port:[%d],db:[%d]' % ( self.host, self.port, self.db_index ) )
             self.conn  = redis.Redis(connection_pool=pool)
             self.sub_log = self.conn.pubsub( ignore_subscribe_messages=True)
