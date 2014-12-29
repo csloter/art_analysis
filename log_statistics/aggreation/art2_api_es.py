@@ -22,7 +22,7 @@ conf_map = yaml_conf.conf
 #无效字段
 UNKNOW_VALUE = '-'
 #用户注册api
-REGISTER_RESPONSE = '/v1/userregister'
+REGISTER_RESPONSE = 'v1userregister'
 LOG_PATH=conf_map['es']['log_trace']
 es_tracer = logging.getLogger('elasticsearch.trace')
 es_tracer.propagate = False
@@ -51,7 +51,7 @@ class Art2ApiLogEs( object ):
 			v_time = lines[0]
 			line_map['v_time'] = date_util.timestamp_to_utc_datetime( v_time )
 			api = lines[1]
-			api = api.replace('/','_')
+			api = api.replace('/','')
 			line_map['api'] = api
 			ip_1 = lines[2]
 			line_map['ip_1'] = ip_1

@@ -55,6 +55,8 @@ def timestamp_to_utc_datetime( timestamps ):
         return datetime.datetime.utcnow()
 
 if __name__ == '__main__':
-    print timestamp_to_utc_datetime(1419862353907)
-    import time
-    print time.time()
+    # print timestamp_to_utc_datetime(1419862353907)
+    # import time
+    # print time.time()
+    print datetime.datetime.now()
+    print past_utc_minutes(10)
