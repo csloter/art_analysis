@@ -1,0 +1,20 @@
+tokumx安装：
+1、下载包：目前是1.5.0
+2、服务器执行 echo never > /sys/kernel/mm/redhat_transparent_hugepage/enabled 关闭系统Transparent HugePages
+3、配置 、启动（和mongodb各命令使用完全一致）
+
+
+mongodb 迁移到 tokumx需要：
+测试环境210：
+1、db数据备份
+search_mysql:
+	mongodump -h 127.0.0.1  -d search_mysql  -u search -p searchAdmin  -o ~/search_mysql
+sre_console:
+	mongodump -h 127.0.0.1  -d sre-console  -u wang.cg@yougou.com -p yougou  -o ~/sre-console
+2、停止mongodb
+3、启动tokumx
+4、resotre 数据到toumx 
+./mongorestore -h 127.0.0.1 --port 27117 -d search_mysql ~/search_mysql
+./mongorestore -h 127.0.0.1 --port 27117 -d sre-console ~/sre-console
+添加用户
+db.addUser("use", "pwd")
