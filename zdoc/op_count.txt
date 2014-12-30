@@ -1,0 +1,31 @@
+{
+  "query": {
+    "filtered": {
+      "filter": {
+        "bool": {
+          "must": [
+            {
+              "range": {
+                "v_time": {
+                  "gte": "2014-12-30T13:24:43.059000"
+                }
+              }
+            },
+            {
+              "term": {
+                "api": "v2paintlist"
+              }
+            }
+          ]
+        }
+      }
+    }
+  },
+  "aggregations": {
+    "userid_count": {
+      "value_count": {
+        "field": "userid"
+      }
+    }
+  }
+}

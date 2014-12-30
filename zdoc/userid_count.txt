@@ -1,0 +1,20 @@
+{
+  "query": {
+    "filtered": {
+      "filter": {
+        "range": {
+          "v_time": {
+            "gte": "2014-12-30T13:24:43.059000"
+          }
+        }
+      }
+    }
+  },
+  "aggregations": {
+    "userid_count": {
+      "value_count": {
+        "field": "userid"
+      }
+    }
+  }
+}
