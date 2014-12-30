@@ -17,7 +17,7 @@
 	1)plugin.bat --install mobz/elasticsearch-head
 	2)plugin.bat --install lukas-vlcek/bigdesk
 	3)cluster.name node.name
-	4)
+	4)vim /etc/security/limits.d/90-nproc.conf  soft    nproc     1024这行的1024改大就行了。
 	
 3、redis
 	1)redis 安装
