@@ -4,7 +4,8 @@
       "filter": {
         "range": {
           "v_time": {
-            "gte": "2014-12-30T13:24:43.059000"
+            "gte": "2015-01-07T03:34:43.059000",
+            "lte": "2015-01-07T03:44:43.059000"
           }
         }
       }
@@ -12,7 +13,7 @@
   },
   "aggregations": {
     "userid_count": {
-      "value_count": {
+      "cardinality": {
         "field": "userid"
       }
     }
