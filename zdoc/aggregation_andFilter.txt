@@ -1,0 +1,56 @@
+{
+  "from": 0,
+  "size": 0,
+  "query": {
+    "filtered": {
+      "filter": {
+        "and": [
+          {
+            "term": {
+              "channel": "10100008"
+            }
+          },
+          {
+            "term": {
+              "sversion": "2.0"
+            }
+          },
+          {
+            "range": {
+              "v_time": {
+                "gte": "2015-01-07T03:34:43.059000",
+                "lte": "2015-01-07T03:44:43.059000"
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  "aggregations": {
+    "userid_count": {
+      "terms": {
+        "field": "userid",
+        "size": 0
+      },
+      "aggs": {
+        "top_hitss": {
+          "top_hits": {
+            "_source": {
+              "include": [
+                "channel",
+                "sversion",
+                "imei",
+                "udid",
+                "deviceid",
+                "cversion",
+                "opertaion"
+              ]
+            },
+            "size": 1
+          }
+        }
+      }
+    }
+  }
+}
